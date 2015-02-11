@@ -42,13 +42,14 @@
 		</style>
 	</head>
 	<body>
-		<div id="targetsight" class="targetsight"></div>
+		<!--div id="targetsight" class="targetsight"></div-->
 		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
 		<div id="info"><a href="http://threejs.org" target="_blank">three.js</a> - webgl terrain demo<br />(left click: forward, right click: backward)</div>
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.8.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
 
 		<script src="js/controls/FirstPersonControls.js"></script>
+		<script src="js/controls/DeviceOrientationControls.js"></script>
 
 		<script src="js/ImprovedNoise.js"></script>
 		<script src="js/Detector.js"></script>
@@ -69,6 +70,7 @@
 			var container, stats;
 
 			var camera, controls, scene, renderer;
+			var dev_orient;
 
 			var mesh, texture;
 
@@ -100,6 +102,9 @@
 				controls = new THREE.FirstPersonControls( camera );
 				controls.movementSpeed = 80;
 				controls.lookSpeed = 0.050;
+
+				dev_orient = new THREE.DeviceOrientationControls(camera);
+
 
 				//data = generateHeight( worldWidth, worldDepth );
 
@@ -283,6 +288,8 @@
 			function render() {
 
 				controls.update( clock.getDelta() );
+				dev_orient.update();
+				
 				renderer.render( scene, camera );
 
 				if (camera.position.y < 40.0) {
