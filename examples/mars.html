@@ -45,7 +45,8 @@
 		<!--div id="targetsight" class="targetsight"></div-->
 		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
 		<div id="info"><a href="http://threejs.org" target="_blank">three.js</a> - webgl terrain demo<br />(left click: forward, right click: backward)</div>
-<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.8.min.js"></script>
+		<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.10.min.js"></script>
+
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
 
 		<script src="js/controls/FirstPersonControls.js"></script>
@@ -59,6 +60,20 @@
 		<script type="text/javascript" src="mo-008.009.js"></script>
 		<script type="text/javascript" src="mo-008.007.js"></script>
 		<script>
+
+		AWS.config.credentials = new AWS.CognitoIdentityCredentials();
+
+		AWS.config.update({accessKeyId: 'AKIAIQR3QLZP3KEMQA4Q', secretAccessKey: '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'});
+		AWS.config.region = 'us-west-2';
+		var dynamodb = new AWS.DynamoDB({region: 'us-west-2', TableName: 'mars_data_test'});
+		
+		var key = '0000.0057';
+
+		var itemParams = {Item: {id: {S: key} } };
+		  // Read the item from the table
+		table.getItem({Key: {id: {S: key}}}, function(err, data) {
+			console.log(data.Item); // print the item data
+		});
 
 			if ( ! Detector.webgl ) {
 
