@@ -74,6 +74,38 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	};
 
+
+	this.onTouchStart = function(event) {
+		if ( this.domElement !== document ) {
+
+			this.domElement.focus();
+
+		}
+		
+		event.preventDefault();
+		event.stopPropagation();
+		if ( this.activeLook ) {
+			this.moveForward = true;
+		}
+		this.mouseDragOn = true;
+	}
+
+
+	this.onTouchEnd = function(event) {
+		if ( this.domElement !== document ) {
+
+			this.domElement.focus();
+
+		}
+		event.preventDefault();
+		event.stopPropagation();
+		if ( this.activeLook) {
+			this.moveForward = false;
+		}
+		this.mouseDragOn = false;
+	}
+
+
 	this.onMouseDown = function ( event ) {
 
 		if ( this.domElement !== document ) {
@@ -259,6 +291,9 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'mousemove', bind( this, this.onMouseMove ), false );
 	this.domElement.addEventListener( 'mousedown', bind( this, this.onMouseDown ), false );
 	this.domElement.addEventListener( 'mouseup', bind( this, this.onMouseUp ), false );
+
+	//this.domElement.addEventListener( 'touchstart', bind( this, this.onTouchStart), false);
+	//this.domElement.addEventListener( 'touchend', bind(this, this.onTouchEnd), false);
 
 	window.addEventListener( 'keydown', bind( this, this.onKeyDown ), false );
 	window.addEventListener( 'keyup', bind( this, this.onKeyUp ), false );
