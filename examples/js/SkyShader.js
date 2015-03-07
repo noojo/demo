@@ -101,10 +101,11 @@ THREE.ShaderLib['sky'] = {
 		"const float cutoffAngle = pi/1.95;",
 		"const float steepness = 1.5;",
 
-
-		"vec3 totalRayleigh(vec3 lambda)",
-		"{",
-			"return (8.0 * pow(pi, 3.0) * pow(pow(n, 2.0) - 1.0, 2.0) * (6.0 + 3.0 * pn)) / (3.0 * N * pow(lambda, vec3(4.0)) * (6.0 - 7.0 * pn));",
+		"// stackoverflow.com/questions/27348125/colors-output-from-webgl-fragment-shader-differ-significantly-across-platforms"
+		"vec3 totalRayleigh(vec3 lambda) {",
+    	"return vec3(0.000005804542996261093,", 
+        "        0.000013562911419845635,",
+        "       0.00003026590629238531);",
 		"}",
 
 		"float rayleighPhase(float cosTheta)",
