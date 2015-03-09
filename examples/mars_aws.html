@@ -9,7 +9,7 @@
 	</head>
 	<body>
 		<!--div id="targetleft" ></div-->
-		<div id="targetright">TMA</div>
+		<div id="targetright">Loading</div>
 		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
 		<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.14.min.js"></script>
 
@@ -22,80 +22,83 @@
 		<!--script src="js/libs/stats.min.js"></script-->
 		<script src="js/MarsSkyShader.js"></script>
 		<script src="js/Mirror.js"></script>
-		<script src="js/WaterShader.js"></script>
+		
+		<script src="js/DuneShader.js"></script>
 
 		<script src="js/loaders/DDSLoader.js"></script>
 		<script src="js/loaders/MTLLoader.js"></script>
 		<script src="js/loaders/OBJMTLLoader.js"></script>
-		<script type="x-shader/x-vertex" id="scarybumpy">
-		
-		// switch on high precision floats
-		#ifdef GL_ES
-		precision highp float;
-		#endif
-		
-		uniform float amplitude;
-		attribute float displacement;
-		varying vec3 vNormal;
-		varying vec3 vPosition;
 
-		void main() {
 
-			vNormal = normal;
-			vPosition = position + normal;
+		<script type="x-shader/x-vertex" id="scarybumpy">		
+				// switch on high precision floats
+			#ifdef GL_ES
+			precision highp float;
+			#endif
 			
-			// multiply our displacement by the
-			// amplitude. The amp will get animated
-			// so we'll have animated displacement
-			vec3 newPosition = position + 
-							   normal;
-							   //vec3(1.0, amplitude * position.y, 1.0);
-			//newPosition.y *= amplitude;
+			uniform float amplitude;
+			attribute float displacement;
+			varying vec3 vNormal;
+			varying vec3 vPosition;
 
-			// vec3 p = normal;
-			// p.y = normal.y * amplitude;
-			//position.y = position.y * amplitude;
-			
-			gl_Position = projectionMatrix *
-						  modelViewMatrix *
-						  vec4(newPosition,1.0);
-		}
+			void main() {
+
+				vNormal = normal;
+				vPosition = position + normal;
+				
+				// multiply our displacement by the
+				// amplitude. The amp will get animated
+				// so we'll have animated displacement
+				vec3 newPosition = position + 
+								   normal;
+								   //vec3(1.0, displacement * position.y, 1.0);
+				//newPosition.y *= amplitude;
+
+				// vec3 p = normal;
+				// p.y = normal.y * amplitude;
+				//position.y = position.y * amplitude;
+				
+				gl_Position = projectionMatrix *
+							  modelViewMatrix *
+							  vec4(newPosition,1.0);
+			}
 		</script>
+
 		<script type="x-shader/x-fragment" id="scaryfragment">
 	
-		#ifdef GL_ES
-		precision highp float;
-		#endif
-		
-		// same name and type as VS
-		varying vec3 vNormal;
-		varying vec3 vPosition;
+			#ifdef GL_ES
+			precision highp float;
+			#endif
+			
+			// same name and type as VS
+			varying vec3 vNormal;
+			varying vec3 vPosition;
 
-		float rand(vec2 co)
-		{
-		   return fract(sin(dot(co.xy,vec2(12.9898,78.233))) * 43758.5453);
-		}
-		void main() {
-		  // 0 -> 1 rather than -1 -> 1
-		  vec3 light = vec3(0.5, 0.2, -1.0);
-		  // ensure it's normalized
-		  light = normalize(light);
-		  // calculate the dot product of
-		  // the light to the vertex normal
-		  float dProd = max(0.0,
-		                    dot(vNormal, light));
-	  
+			float rand(vec2 co)
+			{
+			   return fract(sin(dot(co.xy,vec2(12.9898,78.233))) * 43758.5453);
+			}
+			void main() {
+			  // 0 -> 1 rather than -1 -> 1
+			  vec3 light = vec3(0.5, 0.2, -1.0);
+			  // ensure it's normalized
+			  light = normalize(light);
+			  // calculate the dot product of
+			  // the light to the vertex normal
+			  float dProd = max(0.0,
+			                    dot(vNormal, light));
+		  
 
-		  gl_FragColor = vec4(
-  				(dProd * .8) + ((vPosition.y + 90.0) * .005 * 0.90), // R
-                (dProd * .3) + ((vPosition.y + 90.0) * .005 * 0.60), // G
-                (dProd * .1) + ((vPosition.y + 90.0) * .005 * 0.50), // B
-                1.0
-			);
+			  gl_FragColor = vec4(
+	  				(dProd * .8) + ((vPosition.y + 90.0) * .005 * 0.90), // R
+	                (dProd * .3) + ((vPosition.y + 90.0) * .005 * 0.60), // G
+	                (dProd * .1) + ((vPosition.y + 90.0) * .005 * 0.50), // B
+	                1.0
+				);
 
-		}
-	
-	</script>	
+			}
+
+		</script>	
 
 		<script>
 
@@ -130,9 +133,7 @@
 		// set the Amazon Cognito region
 		AWS.config.region = 'us-east-1';
 		// initialize the Credentials object with our parameters
-		AWS.config.credentials = new AWS.CognitoIdentityCredentials(cog_params);
-
-		
+		AWS.config.credentials = new AWS.CognitoIdentityCredentials(cog_params);		
 		// We can set the get method of the Credentials object to retrieve
 		// the unique identifier for the end user (identityId) once the provider
 		// has refreshed itself
@@ -193,28 +194,6 @@
 		var sky, sunSphere;
 		var distance = 400000;
 
-
-		// model
-
-		// var loader = new THREE.OBJMTLLoader();
-		// 		loader.load( 'models/SeaviewSubmarine/Seaview_submarine.obj', 'models/SeaviewSubmarine/Seaview_submarine.mtl', function ( object ) {
-
-		// 			object.position.y = -220;
-		// 			scene.add( object );
-
-		// 		}, onProgress, onError );
-		
-		// var loader2 = new THREE.OBJMTLLoader();
-		// 		loader2.load( 'models/atlantis/atlantis.obj', 'models/atlantis/atlantis.mtl', function ( object ) {
-
-		// 			object.position.y = -185;
-		// 			object.position.x = tiles * 16 * pw + start_row * pw;
-		// 			object.position.z = tiles * 16 * ph + start_col * ph;
-		// 			scene.add( object );
-
-		// 		}, onProgress, onError );
-		
-
 		var attributes = {
 			displacement: {
 				type: 'f', // a float
@@ -231,10 +210,9 @@
 		init();
 		animate();
 
-
 		var new_geo;
 		var new_mat;
-		var waterNormals;
+		var waterNormalz;
 		
 		function reverse(event) {
 			event.preventDefault();
@@ -286,18 +264,19 @@
 			var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
 			light.position.set( - 1, 1, - 1 );
 			scene.add( light );
-			waterNormals = new THREE.ImageUtils.loadTexture( 'textures/waternormals.jpg' );
-			waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping; 
+
+			waterNormalz = new THREE.ImageUtils.loadTexture( 'textures/waternormals.jpg' );
+			waterNormalz.wrapS = waterNormalz.wrapT = THREE.RepeatWrapping; 
 
 			water = new THREE.Water( renderer, camera, scene, {
 				textureWidth: 512, 
 				textureHeight: 512,
-				waterNormals: waterNormals,
-				alpha: 	0.12,
+				waterNormals: waterNormalz,
+				alpha: 	1.0,
 				sunDirection: light.position.clone().normalize(),
-				sunColor: 0xa0f08f,
-				waterColor: 0xe8f888,
-				distortionScale: 1.0,
+				sunColor: 0xffa030,
+				waterColor: 0xf0af70,
+				distortionScale: 20.0,
 			} );
 
 			mirrorMesh = new THREE.Mesh(
@@ -330,6 +309,7 @@
 				
 			
 					dynamodb.getItem({'TableName': 'mars_test', Key: {'grid': {S: key}}}, function(err, data) {
+						targetright.innerHTML = "Loading" + key;
 						var coord = data.Item.grid.S.split('.');
 
 						if ( err ) {
@@ -361,7 +341,6 @@
 							attributes:     attributes,
 							vertexShader:   document.getElementById('scarybumpy').innerHTML,
 							fragmentShader: document.getElementById('scaryfragment').innerHTML
-							
 						});						
 						var msh = new THREE.Mesh( geom, shaderMaterial );
 						// var msh = new THREE.Mesh( geom, new THREE.MeshBasicMaterial(  
@@ -609,7 +588,7 @@
 				dev_orient.update();
 			}
 			
-			water.material.uniforms.time.value += 1.0 / 60.0;
+			water.material.uniforms.time.value += .0022251;
 			water.render();
 
 			uniforms.amplitude.value = Math.sin(frame) * 1.2;
