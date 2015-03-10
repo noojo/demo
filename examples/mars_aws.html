@@ -46,21 +46,9 @@
 				vNormal = normal;
 				vPosition = position + normal;
 				
-				// multiply our displacement by the
-				// amplitude. The amp will get animated
-				// so we'll have animated displacement
-				vec3 newPosition = position + 
-								   normal;
-								   //vec3(1.0, displacement * position.y, 1.0);
-				//newPosition.y *= amplitude;
-
-				// vec3 p = normal;
-				// p.y = normal.y * amplitude;
-				//position.y = position.y * amplitude;
-				
 				gl_Position = projectionMatrix *
 							  modelViewMatrix *
-							  vec4(newPosition,1.0);
+							  vec4(vPosition,1.0);
 			}
 		</script>
 
@@ -85,10 +73,8 @@
 			  light = normalize(light);
 			  // calculate the dot product of
 			  // the light to the vertex normal
-			  float dProd = max(0.0,
-			                    dot(vNormal, light));
+			  float dProd = max(0.0, dot(vNormal, light));
 		  
-
 			  gl_FragColor = vec4(
 	  				(dProd * .8) + ((vPosition.y + 90.0) * .005 * 0.90), // R
 	                (dProd * .3) + ((vPosition.y + 90.0) * .005 * 0.60), // G
@@ -216,14 +202,10 @@
 		
 		function reverse(event) {
 			event.preventDefault();
-			//event.stopPropagation();
-			//controls.moveBackward = true;
 		}
 
 		function stop(event) {
 			event.preventDefault();
-			//event.stopPropagation();
-			//controls.moveBackward = false;
 		}
 
 		function init() {
@@ -265,7 +247,7 @@
 			light.position.set( - 1, 1, - 1 );
 			scene.add( light );
 
-			waterNormalz = new THREE.ImageUtils.loadTexture( 'textures/waternormals.jpg' );
+			waterNormalz = new THREE.ImageUtils.loadTexture( 'textures/dunes.jpg' );
 			waterNormalz.wrapS = waterNormalz.wrapT = THREE.RepeatWrapping; 
 
 			water = new THREE.Water( renderer, camera, scene, {
@@ -275,7 +257,7 @@
 				alpha: 	0.9,
 				sunDirection: light.position.clone().normalize(),
 				sunColor: 0xffa030,
-				waterColor: 0xf0af70,
+				waterColor: 0xf0af90,
 				distortionScale: 20.0,
 			} );
 
