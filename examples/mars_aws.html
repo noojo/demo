@@ -13,6 +13,7 @@
 			<span id="aws_cognito" class="hudlet"></span>
 			<span id="aws_dynamo" class="hudlet"></span>
 			<span class="hudlet"><div id="altimeter" class="hudgauge">123</div><div class="hudlabel">ALT</div></span>
+			<span class="hudlet" id="hudmsg"><li>Initializing systems...</li></span>
 		</div>
 		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
 		<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.14.min.js"></script>
@@ -197,6 +198,7 @@
 		var start_row = 9;
 		var start_col = 9;
 		var tiles = 8;
+		var tiles_dl = 0;
 
 		var sky, sunSphere;
 		var distance = 400000;
@@ -217,9 +219,11 @@
 		init();
 		animate();
 
-		var new_geo;
-		var new_mat;
-		var waterNormalz;
+		// var new_geo;
+		// var new_mat;
+		// var waterNormalz;
+
+
 		
 		function reverse(event) {
 			event.preventDefault();
@@ -304,8 +308,8 @@
 			camera.position.y = 20.0;
 
 			var now = Date.now();
-			var ddb_now = {};
-	 
+			
+	 		var ddb_now = {};
 			for (var r = start_row; r < tiles + start_row; r++) {
 				for (var c = start_col; c < tiles + start_col; c++) {
 					var key = pad(r,4) + '.' + pad(c, 4);
@@ -347,6 +351,8 @@
 						
 						scene.add( msh );
 
+						tiles_dl++;
+
 						// geom.attributes.position.needsUpdate = true;
 						// msh.geometry.attributes.position.needsUpdate = true;
 						//addline(data.Item.grid.S + ' mesh added to scene ' + (Date.now() - g_now) + ' ms', aws_dynamo);
@@ -363,6 +369,20 @@
 
 			window.addEventListener( 'resize', onWindowResize, false );
 
+			setTimeout(watchTiles, 2000);
+
+		}
+
+		function watchTiles(e) {
+			var d = document.querySelector('#hudmsg');
+			console.log(tiles_dl);
+			if ( tiles_dl !== tiles * tiles) {
+				addline('Terrain still loading.', d);
+				setTimeout(watchTiles, 1000);
+			}
+			else {	
+				addline('Ready now for Mars exploration.', d);
+			}
 		}
 
 		function addline(e, d) {
