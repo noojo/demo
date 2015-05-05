@@ -1,0 +1,44 @@
+body {
+	color: #000000;
+	font-family:Roboto, Arial, sans-serif;
+	font-size:13px;
+	text-align:center;
+	background-color: #000000;
+	margin: 0px;
+	overflow: hidden;
+}
+
+div {
+	background-color: #000000;
+}
+
+#info {
+	position: absolute;
+	top: 0px; width: 100%;
+	padding: 5px;
+}
+
+a {
+	color: #a06851;
+}
+
+#targetright {
+	color: rgba(250,250,250, 1.0);
+	font-size: 2em;
+	background-color: rgba(0,20,45,.4);
+	border: solid 2px rgba(250,250,250,.5);
+	font-family: Roboto, Arial, sans-serif;			
+
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+
+	width: 100px;
+
+	border-radius: 30px 30px 30px 30px;
+	padding: 2em;
+	margin: 10px;
+	text-align: center;
+}

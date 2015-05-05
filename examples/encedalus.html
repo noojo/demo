@@ -82,6 +82,8 @@
 				scene = new THREE.Scene();
 				//scene.fog = new THREE.FogExp2( 0xffffff, 0.000008 );
 
+
+
 				
 				saturn_geom = new THREE.SphereGeometry(1280, 64, 64);
 				var saturn_img = THREE.ImageUtils.loadTexture( "textures/planets/saturn.jpg");
@@ -94,16 +96,21 @@
 				saturn_tex = new THREE.MeshPhongMaterial( {  map: saturn_img });
 				//saturn_tex.scale.x = saturn_tex.scale.y = 2;
 
+				var torus  = new THREE.Mesh( new THREE.TorusGeometry( 1300, 80, 40, 60 ),new THREE.MeshPhongMaterial( {  color: 0xdfd0ff, opacity: .12, transparent: true}) );
+				torus.position.set( 0, 0, -1070 );
+				torus.rotation.x = 1.7;
+				torus.rotation.y = .80;
+				scene.add(torus);
 
 				saturn_mesh = new THREE.Mesh(saturn_geom, saturn_tex);
-				saturn_mesh.position.z = -2250;
+				saturn_mesh.position.z = -2150;
 				saturn_mesh.position.y = -100;
 				saturn_mesh.position.x = 100;
 
 				saturn_mesh.rotation.x = 0;//-.7515;
 				saturn_mesh.rotation.z = .76;//1.4;
 
-
+				scene.add(saturn_mesh);
 
 				geometry = new THREE.Geometry();
 				
@@ -113,12 +120,13 @@
 				sprite4 = THREE.ImageUtils.loadTexture( "textures/sprites/snowflake4.png" );
 				sprite5 = THREE.ImageUtils.loadTexture( "textures/sprites/snowflake5.png" );
 				var k = 1.41;
+				var k2 = 800;
 
 				for ( i = 0; i < 4000; i ++ ) {
 					var vertex = new THREE.Vector3();
-					vertex.y = Math.sin(i) * 400 * k;
-					vertex.z = Math.random() * 60 * k;
-					vertex.x = Math.cos(i) * 400 * k + Math.random() * 10;
+					vertex.y = Math.sin(i) * k2 * k;
+					vertex.z = Math.random() * 560 * k;
+					vertex.x = Math.cos(i) * k2 * k + Math.random() * 10;
 					geometry.vertices.push( vertex );
 				}
 
@@ -142,7 +150,7 @@
 					particles.rotation.y = 1;
 					particles.rotation.x = 10.46;
 					//particles.rotation.z = -100.46;
-					//particles.position.z = -450;
+					particles.position.z = -150;
 
 				
 					scene.add( particles );
@@ -151,7 +159,7 @@
 
 //saturn_mesh.castShadow = false;
 //saturn_mesh.receiveShadow = true;
-				scene.add(saturn_mesh);
+				
 var directionalLight = new THREE.DirectionalLight( 0xffe0af, 1.5 );
 directionalLight.position.set( -1000, 1000, 0 );
 directionalLight.castShadow = true;
@@ -189,7 +197,7 @@ scene.add( directionalLight );
 
 				container.appendChild( renderer.domElement );
 
-				effect = new THREE.StereoEffect(renderer);		
+				effect = renderer; //new THREE.StereoEffect(renderer);		
 
 				stats = new Stats();
 				stats.domElement.style.position = 'absolute';
@@ -272,6 +280,7 @@ scene.add( directionalLight );
 				camera.lookAt( scene.position );
 				saturn_mesh.rotation.y = time * .75;
 				saturn_mesh.rotation.x += .000001;
+				saturn_mesh.position.z += .011;
 				for ( i = 0; i < scene.children.length; i ++ ) {
 
 					var object = scene.children[ i ];
@@ -279,6 +288,8 @@ scene.add( directionalLight );
 					if ( object instanceof THREE.PointCloud ) {
 
 						object.rotation.z = time * ( i < 2 ? i + 1 : - ( i + 1 ) );
+						//object.position.z = time * ( i < 2 ? i + 1 : - ( i + 1 ) );
+						
 						//object.rotation.y = time * ( i < 2 ? i + 1 : - ( i + 1 ) );
 						// object.position.y += 1;
 						// //object.position.x += Math.cos(time) * .15;

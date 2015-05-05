@@ -114,6 +114,7 @@
 		var aws_dynamo = document.querySelector('#aws_dynamo');
 		var aws_cognito = document.querySelector('#aws_cognito');
 		var altimeter = document.querySelector('#altimeter');
+		var hud_bar = document.querySelector('#barr');
 
 		var onProgress = function ( xhr ) {
 			if ( xhr.lengthComputable ) {
@@ -521,6 +522,8 @@
 			water.render();
 
 			uniforms.amplitude.value = Math.sin(frame);// * 1.2;
+			barr.style.height = Math.abs((uniforms.amplitude.value * 2.0)) + 'em';
+			//console.log(barr.style.height);
 			frame += 0.01;
 
 

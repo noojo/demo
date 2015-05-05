@@ -94,11 +94,14 @@
  		 window.addEventListener('devicemotion', deviceMotionHandler, false);
 		}
 
-		var motion_obj;
+		var motion_obj = [0,0,0,0,0];
 
 		function deviceMotionHandler(e) {
-			//motion_obj = e;
-			if ( e.acceleration.y > 0.1 ) {
+			motion_obj.shift();
+			motion_obj.push(e.acceleration.y);
+			var v = motion_obj[0] * .1 + motion_obj[1] * .2 + motion_obj[2] * .4 + motion_obj[3] * .2 + motion_obj[4] * .1;
+			targetright.innerHTML = motion_obj[0];
+			if ( v > 0.1 ) {
 				controls.moveForward = true;
 			}
 			else {
@@ -194,7 +197,7 @@
 		var ph = 88;
 		var start_row = 9;
 		var start_col = 9;
-		var tiles = 12;
+		var tiles = 2;
 
 		var sky, sunSphere;
 		var distance = 400000;
@@ -275,7 +278,7 @@
 				textureWidth: 512, 
 				textureHeight: 512,
 				waterNormals: waterNormalz,
-				alpha: 	0.9,
+				alpha: 	0.1,
 				sunDirection: light.position.clone().normalize(),
 				sunColor: 0xffa030,
 				waterColor: 0xf0af90,
@@ -517,7 +520,7 @@
 			//renderer.render( scene, camera );
 			effect.render( scene, camera );
 
-			targetright.innerHTML = parseInt(camera.position.y);
+			//targetright.innerHTML = parseInt(camera.position.y);
 
 		}
 

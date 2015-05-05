@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>BgTest</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href='http://fonts.googleapis.com/css?family=Roboto:400,900' rel='stylesheet' type='text/css'>
+		<link href="bgtest.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<!--div id="targetleft" ></div-->
+		<div id="targetright">Loading
+			<div>HHI</div>
+		</div>
+		<div id="container"></div>
+		
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
+
+		<script src="js/ImprovedNoise.js"></script>
+		<script src="js/Detector.js"></script>
+
+
+
+		<script type="x-shader/x-vertex" id="scarybumpy">		
+			// switch on high precision floats
+			#ifdef GL_ES
+			precision highp float;
+			#endif
+			
+			uniform float amplitude;
+			attribute float displacement;
+			varying vec3 vNormal;
+			varying vec3 vPosition;
+
+			float rand(vec2 co)
+			{
+			   return fract(sin(dot(co.xy,vec2(12.9898,78.233))) * 43758.5453);
+			}
+
+			void main() {
+
+				vNormal = normal;
+				vPosition = position;
+				
+				// multiply our displacement by the
+				// amplitude. The amp will get animated
+				// so we'll have animated displacement
+				
+				//vPosition.x *= pow(cos(amplitude), .12);
+				//vPosition.z *= sin(-amplitude );
+				vPosition = vPosition + normal;
+				if ( vPosition.y < 0.0 ) {
+					vPosition.y +=  sin(amplitude) * 8.0;
+				}
+				else {
+					vPosition.y -=  sin(amplitude) * 8.0;
+				}
+
+				gl_Position = projectionMatrix *
+							  modelViewMatrix *
+							  vec4(vPosition,1.0);
+
+			}
+		</script>
+
+		<script type="x-shader/x-fragment" id="scaryfragment">
+	
+			#ifdef GL_ES
+			precision highp float;
+			#endif
+			
+			// same name and type as VS
+			varying vec3 vNormal;
+			varying vec3 vPosition;
+
+			float rand(vec2 co)
+			{
+			   return fract(sin(dot(co.xy,vec2(12.9898,78.233))) * 43758.5453);
+			}
+			void main() {
+			  // 0 -> 1 rather than -1 -> 1
+			  vec3 light = vec3(0.0, .139015, 0.0);
+			  // ensure it's normalized
+			  light = normalize(light);
+			  // calculate the dot product of
+			  // the light to the vertex normal
+			  float dProd = (max(0.0,
+			                    dot(vNormal, light)));
+		  
+			  //float a = (vPosition.y + 10.0) * .0120;
+			  //float r = rand(vec2(vNormal.x, vNormal.z));
+			  //dProd = pow(dProd, 2.5) * .7;
+			  //r = dProd ;
+			  gl_FragColor = vec4(
+	  				dProd * .26, // R
+	                dProd * .26, // G
+	                dProd * .26, // B
+	                1.0
+				);
+
+			}
+
+		</script>	
+
+		<script>
+
+		var targetright = document.querySelector('#targetright');
+		var targetleft = document.querySelector('#targetleft');
+
+		var onProgress = function ( xhr ) {
+			if ( xhr.lengthComputable ) {
+				var percentComplete = xhr.loaded / xhr.total * 100;
+				console.log( Math.round(percentComplete, 2) + '% downloaded' );
+			}
+		};
+
+		var onError = function ( xhr ) {
+			console.log(xhr);
+		};
+
+		var isMobile = { 
+			Android: function() { return navigator.userAgent.match(/Android/i); }, 
+			BlackBerry: function() { return navigator.userAgent.match(/BlackBerry/i); }, 
+			iOS: function() { return navigator.userAgent.match(/iPhone|iPad|iPod/i); }, 
+			Opera: function() { return navigator.userAgent.match(/Opera Mini/i); }, 
+			Windows: function() { return navigator.userAgent.match(/IEMobile/i); }, 
+			any: function() { return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows()); } 
+		};
+		
+
+		if ( ! Detector.webgl ) {
+			Detector.addGetWebGLMessage();
+			document.getElementById( 'container' ).innerHTML = "";
+		}
+
+		var container, stats;
+		var camera, controls, scene, renderer;
+		var dev_orient;
+		var mesh, texture, geom;
+
+		var clock = new THREE.Clock();
+		var target_sight;
+		var pw = 256;
+		var ph = 256;
+
+		var attributes = {
+			displacement: {
+				type: 'f', // a float
+				value: [] // an empty array
+			}
+		};
+		var uniforms = {
+			amplitude: {
+				type: 'f', // a float
+				value: 0
+			}
+		};
+		
+		init();
+		animate();
+
+
+		
+		function reverse(event) {
+			event.preventDefault();
+			//event.stopPropagation();
+			//controls.moveBackward = true;
+		}
+
+		function stop(event) {
+			event.preventDefault();
+			//event.stopPropagation();
+			//controls.moveBackward = false;
+		}
+
+		function init() {
+
+			container = document.getElementById( 'container' );
+			target_sight = document.getElementById( 'targetsight' );
+			camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000000 );
+			scene = new THREE.Scene();
+
+			renderer = new THREE.WebGLRenderer();
+			renderer.setClearColor( 0x000000 );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+			camera.position.x = 0;
+			camera.position.z = 30;
+			camera.position.y = 55.0;
+			camera.rotation.x = -1.62;
+
+			geom = new THREE.PlaneBufferGeometry( pw, ph, pw, ph );
+			geom.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
+			var vtz = geom.attributes.position.array;
+			var j = 0;
+			var n = 1;
+			var a = 1;
+			for (var y = 0; y < ph; y+=4) {
+				for (var x = 0; x < pw * 3; x+=3) {
+					if ( x % 16 === 0) {
+						n *= -1;
+						a = 4 * n * (y % 8) * Math.random();
+					}
+					
+					vtz[y * pw * 3 + x + 1] = a;
+					vtz[(y+1) * pw * 3 + x + 1] = a;
+					vtz[(y+2) * pw * 3 + x + 1] = a;
+					vtz[(y+3) * pw * 3 + x + 1] = a;
+				};
+			};
+			// for ( var i = 0; i < pw * ph * 3; i += 3 ) {
+
+			// 		vtz[  i + 1 ] = 2.0  *   Math.sin(j);// * h_scale;
+			// 		//if ( i % 2 === 0) {
+			// 		j += .52; //Math.random() * 3.14;
+			// 		//}
+			// }
+	
+			geom.computeFaceNormals();
+			geom.computeVertexNormals();
+
+			var shaderMaterial = new THREE.ShaderMaterial({
+				uniforms:     	uniforms,
+				attributes:     attributes,
+				vertexShader:   document.getElementById('scarybumpy').innerHTML,
+				fragmentShader: document.getElementById('scaryfragment').innerHTML
+			});	
+
+			mesh = new THREE.Mesh( geom, shaderMaterial );
+
+			scene.add( mesh );
+
+			geom.attributes.position.needsUpdate = true;
+			mesh.geometry.attributes.position.needsUpdate = true;
+				
+
+
+			container.innerHTML = "";
+
+			container.appendChild( renderer.domElement );
+
+
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+		}
+
+		function pad(n, width, z) {
+		  z = z || '0';
+		  n = n + '';
+		  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+			//controls.handleResize();
+
+		}
+
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+
+			render();
+			//stats.update();
+
+		}
+
+		var frame = 0.0;
+		function render() {
+
+			uniforms.amplitude.value = Math.sin(frame) * .6;
+			attributes.displacement.value = 20.0;
+			frame += 0.008;
+
+			// geom.computeFaceNormals();
+			// geom.computeVertexNormals();
+
+			//mesh.rotation.y += .0005;
+
+			renderer.render( scene, camera );
+
+			targetright.textContent = parseInt(camera.position.y);
+
+
+		}
+
+		</script>
+
+	</body>
+
+</html>
